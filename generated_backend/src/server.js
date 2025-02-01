@@ -1,6 +1,3 @@
-
-
-// Patches
 const {inject, errorHandler} = require('express-custom-error');
 inject(); // Patch express in order to use async / await syntax
 
@@ -10,27 +7,17 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
+const contributionRoutes = require('./routes/contributionRoutes');
+const rewardRoutes = require('./routes/rewardRoutes');
 
+require('dotenv').config();
 
 const logger = require('./util/logger');
 
-// Load .env Enviroment Variables to process.env
-
-require('mandatoryenv').load([
-    'DB_HOST',
-    'DB_DATABASE',
-    'DB_USER',
-    'DB_PASSWORD',
-    'PORT',
-    'SECRET'
-]);
-
 const { PORT } = process.env;
-
 
 // Instantiate an Express Application
 const app = express();
-
 
 // Configure Express App Instance
 app.use(express.json( { limit: '50mb' } ));
@@ -50,19 +37,13 @@ app.use('*', (req, res, next) => {
 })
 
 // Assign Routes
-
-app.use('/', require('./routes/router.js'));
-
+app.use("/api/contributions", contributionRoutes);
+app.use("/api/rewards", rewardRoutes);
 
 // Handle errors
 app.use(errorHandler());
 
-// Handle not valid route
-app.use('*', (req, res) => {
-    res
-    .status(404)
-    .json( {status: false, message: 'Endpoint Not Found'} );
-})
+app.get("/", (req, res) => res.send("AIxBlock Backend Running 🚀"));
 
 // Open Server on selected Port
 app.listen(
